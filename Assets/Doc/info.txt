@@ -1,0 +1,8 @@
+配表编辑器使用说明
+编辑excel表保存为xlsx格式，放到Excel目录下
+单个表数据生成  选择要生成的excel文件，然后点击 te/生成选中excel数据表
+全部表数据生成  直接点击te/生成所有excel数据表
+
+
+Demo中是读取和查询序列号后表的方法
+需要把DataTable，TableMgr copy到主工程
