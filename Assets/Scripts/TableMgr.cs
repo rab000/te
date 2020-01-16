@@ -71,61 +71,6 @@ public class TableMgr
     }
 
     /// <summary>
-    /// 载入一个数据表
-    /// </summary>
-    /// <param name="tablePath"></param>
-    public static void LoadDataTable1(string tablePath)
-    {
-        byte[] bs = FileHelper.ReadBytesFromFile(tablePath);
-
-        IoBuffer buffer = new IoBuffer(1024000);
-
-        buffer.PutBytes(bs);
-
-        string tableName = buffer.GetString();
-
-        DataTable dataTable = new DataTable(tableName);
-
-        if (TableDic.ContainsKey(tableName))
-        {
-            Debug.LogError("TableMgr.LoadDataTable table："+ tableName+"已存在，导入失败");
-            return;
-        }
-
-        dataTable.Row = buffer.GetInt();
-
-        dataTable.Column = buffer.GetInt();
-
-        Debug.LogError("TableMgr.LoadDataTable tableName:"+tableName+" row:"+dataTable.Row+" colomn:"+dataTable.Column);
-
-        for (int i = 0; i < dataTable.Row; i++)
-        {
-            //字段名
-            string fieldName = buffer.GetString();
-
-            if (!dataTable.TableDataDic.ContainsKey(fieldName))
-            {
-                dataTable.TableDataDic.Add(fieldName, new Dictionary<string, string>());
-            }
-            
-            for (int j = 0; j < dataTable.Column; j++)
-            {
-                //id
-                string id = buffer.GetString();
-                //字段内容
-                string content = buffer.GetString();
-
-                Debug.LogError("TableMgr.LoadDataTable 添加 tableName:"+tableName+" fieldName:"+fieldName+" id:"+id+" content:"+content);
-
-                dataTable.TableDataDic[fieldName].Add(id,content);
-            }
-
-        }
-
-    }
-
-    
-    /// <summary>
     /// 
     /// </summary>
     /// <param name="id"> 数据id，每行第一个字段，也是主键</param>

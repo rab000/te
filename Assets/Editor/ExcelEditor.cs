@@ -62,9 +62,6 @@ public class ExcelEditor
 
             LoadData(allExcelPaths[i]);
 
-            //DataTable dataTable = LoadData( allExcelPaths[i] );
-
-            //SaveDataTable2Bytes(dataTable);
         }
     }
 
@@ -112,110 +109,6 @@ public class ExcelEditor
         FileHelper.WriteBytes2File(outPutPath, Buffer.ToArray());
 
     }
-
-    //导入xlsx并返回DataTable
-    public static DataTable LoadData1(string xlsxPath)
-    {
-        Debug.Log("ExcelEditor.LoadData xlsxPath--->" + xlsxPath);
-
-        string tableName = EditorHelper.GetFileNameFromPath(xlsxPath, true);
-
-        DataTable dataTable = new DataTable(tableName);
-
-        FileStream fileStream = File.Open(xlsxPath, FileMode.Open, FileAccess.Read);
-
-        IExcelDataReader excelDataReader = ExcelReaderFactory.CreateOpenXmlReader(fileStream);
-
-        //读取表格
-        DataSet excelDataSet = excelDataReader.AsDataSet();
-
-        //列 
-        dataTable.Column = excelDataSet.Tables[0].Columns.Count;
-
-        //行 
-        dataTable.Row = excelDataSet.Tables[0].Rows.Count;
-
-        // 根据行列依次打印表格中的每个数据 
-        Debug.Log("ExcelEditor.LoadData 表名:"+ tableName+" 行数:"+ dataTable.Row + " 列数"+ dataTable.Column);
-
-       
-
-        //第一行为表头，不读取
-        for (int i = 0; i < dataTable.Row; i++)
-        {
-            for (int j = 0; j < dataTable.Column; j++)
-            {
-                //具体格子内容
-                string fieldContent = excelDataSet.Tables[0].Rows[i][j].ToString();
-
-                //字段名，第一行的值,字段名
-                string fieldName = excelDataSet.Tables[0].Rows[0][j].ToString();
-
-                //id,第一列的值
-                string id = excelDataSet.Tables[0].Rows[i][0].ToString();
-
-                if (i == 0)
-                {
-                    //第一行数据是描述文字
-                    if (!dataTable.TableDataDic.ContainsKey(fieldContent))
-                    {
-                        dataTable.TableDataDic.Add(fieldContent, new Dictionary<string, string>());
-                    }
-                }
-                else
-                {
-                    
-                    Debug.Log("ExcelEditor.LoadData tableName:"+tableName+" fieldName:"+ fieldName + " id:"+id+" content:"+ fieldContent);
-
-                    dataTable.TableDataDic[fieldName].Add(id, fieldContent);
-                    
-                }
-
-            }
-
-        }
-        return dataTable;
-    }
-
-    //把一个DataTable序列号为bytes
-    public static void SaveDataTable2Bytes(DataTable dataTable)
-    {
-        Buffer.Clear();
-
-        var dic = dataTable.TableDataDic;
-
-        Buffer.PutString(dataTable.TableName);
-
-        Buffer.PutInt(dataTable.Row);
-
-        Buffer.PutInt(dataTable.Column);
-
-        foreach (var p in dic)
-        {
-            //字段名
-            Buffer.PutString(p.Key);
-
-            Debug.Log("ExcelEditor.SaveDataTable2Bytes 存入字段名:"+p.Key);
-
-            foreach (var p2 in p.Value)
-            {
-                //NINFO 这里同一个id会存多次，是冗余数据，暂时不做优化，影响不大
-                //ID
-                Buffer.PutString(p2.Key);
-
-                //字段内容
-                Buffer.PutString(p2.Value);
-
-                Debug.Log("ExcelEditor.SaveDataTable2Bytes 存入id:" + p2.Key+" content:"+p2.Value);
-
-            }
-        }
-        string outPutPath = EditorHelper.OUTPUT_ROOT_PATH + "/" + dataTable.TableName + ".n";
-
-        FileHelper.WriteBytes2File(outPutPath, Buffer.ToArray());
-
-    }
-
 
 
     /// <summary>
